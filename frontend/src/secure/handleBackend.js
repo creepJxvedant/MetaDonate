@@ -1,41 +1,38 @@
-function handleRegistration(event) {
-  event.preventDefault();
-
-  const username = document.getElementById("username").value;
-  const gmail = document.getElementById("gmail").value;
-  const password = document.getElementById("password").value;
-
+export const handleRegister = async (username, email, password) => {
   const payload = {
     username: username,
-    gmail: gmail,
+    email: email,
     password: password,
   };
 
-  fetch("http://localhost:8080/auth/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(payload),
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.success) {
-        alert("Registration successful!");
-        window.location.href = "/login";
-      } else {
-        alert("Registration failed: " + data.message);
-      }
-    })
-    .catch((error) => {
-      console.error("Error during registration:", error);
-      alert("An error occurred. Please try again.");
+  console.log(payload);
+
+  try {
+    const response = await fetch("http://localhost:8080/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
     });
-}
+
+    const data = await response.json();
+    console.log(data);
+
+    if (!response.ok) {
+      setError(data.message || "Something went wrong");
+      return;
+    }
+    window.location.href = "/login/signin";
+  } catch (err) {
+    console.error("Error:", err);
+    setError("An error occurred while registering");
+  }
+};
 
 export const handleLogin = async (email, password) => {
   const payload = {
-    gmail: email,
+    email: email,
     password: password,
   };
 
@@ -50,15 +47,50 @@ export const handleLogin = async (email, password) => {
     });
 
     const data = await response.json();
-
-    for (let i = 0; i < 10; i++) {
-      console.log(i);
-    }
-
-    console.log(data);
     return data;
   } catch (error) {
     console.error("Error during login:", error);
+    return {
+      success: false,
+      message: "An error occurred. Please try again later.",
+    };
+  }
+};
+export const createRequest = async (title, amount, reason, address) => {
+  const payload = {
+    title,
+    amount,
+    reason,
+    address,
+  };
+
+  try {
+    const response = await fetch("http://localhost:8080/donations/create", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("authToken")}`, // Added 'Bearer' for standard practice
+      },
+      body: JSON.stringify(payload),
+    });
+
+    if (!response.ok) {
+      // Handle non-2xx HTTP responses
+      const errorData = await response.json();
+      console.error("Error during createRequest:", errorData);
+      return {
+        success: false,
+        message: errorData.message || "Failed to create the request.",
+      };
+    }
+
+    const data = await response.json();
+    return {
+      success: true,
+      data,
+    };
+  } catch (error) {
+    console.error("Error during createRequest:", error);
     return {
       success: false,
       message: "An error occurred. Please try again later.",

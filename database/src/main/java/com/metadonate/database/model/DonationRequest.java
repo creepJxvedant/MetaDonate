@@ -18,15 +18,13 @@ public class DonationRequest {
     private double amtRequest;
     private double amtReceived;
     private String title;
-    private String message;
+    private String reason;
     private String address;
     private boolean fulfilled;
-
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -59,12 +57,12 @@ public class DonationRequest {
         this.title = title;
     }
 
-    public String getMessage() {
-        return message;
+    public String getReason() {
+        return reason;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
+    public void setReason(String reason) {
+        this.reason = reason;
     }
 
     public String getAddress() {
@@ -90,4 +88,5 @@ public class DonationRequest {
     public void setUser(User user) {
         this.user = user;
     }
+
 }

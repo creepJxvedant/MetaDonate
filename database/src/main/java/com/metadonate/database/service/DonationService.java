@@ -5,10 +5,14 @@ import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 import com.metadonate.database.dto.OneDonationRequestDTO;
+import com.metadonate.database.dto.CreateDonationRequestDTO;
 import com.metadonate.database.dto.DonationRequestDTO;
 import com.metadonate.database.model.DonationRequest;
 import com.metadonate.database.model.User;
@@ -55,20 +59,27 @@ public class DonationService {
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));
     }
 
-    public DonationRequestDTO createDonation(DonationRequestDTO donationRequestDTO) {
+    public ResponseEntity<ResponseStatus> createDonation(CreateDonationRequestDTO donationRequestDTO) {
         // Find user by ID from DTO
-        User user = findUserById(donationRequestDTO.user().user_id());
 
-        // Map the DTO to entity
-        DonationRequest donationRequest = new DonationRequest();
-        donationRequest.setAmtRequest(donationRequestDTO.amountNeeded());
-        donationRequest.setAmtReceived(donationRequestDTO.amountCollected());
-        donationRequest.setTitle(donationRequestDTO.title());
-        donationRequest.setMessage(donationRequestDTO.recipientAddress());
-        donationRequest.setAddress(donationRequestDTO.recipientAddress());
-        donationRequest.setFulfilled(donationRequestDTO.fulfilled());
-        donationRequest.setUser(user); // Set user entity
-        DonationRequest savedRequest = donationRequestRepository.save(donationRequest);
-        return new DonationRequestDTO(savedRequest);
+        try {
+            User user = userRepository
+                    .findByEmail(SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString())
+                    .orElseThrow(() -> new IllegalArgumentException("User not found"));
+
+            DonationRequest donationRequest = new DonationRequest();
+            donationRequest.setAmtRequest(donationRequestDTO.amtRequest());
+            donationRequest.setAmtReceived(0.0);
+            donationRequest.setTitle(donationRequestDTO.title());
+            donationRequest.setReason(donationRequestDTO.reason());
+            donationRequest.setAddress(donationRequestDTO.address());
+            donationRequest.setFulfilled(false);
+            donationRequest.setUser(user);
+            donationRequestRepository.save(donationRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.status(201).build();
     }
 }

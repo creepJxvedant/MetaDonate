@@ -20,8 +20,6 @@ public class User {
     private String email; // User's email address
     private String password; // User's hashed password
 
-    // A user can have multiple donation requests (using DonationRequest instead of
-    // UserRequest)
     @OneToMany(mappedBy = "user")
     private List<DonationRequest> donationRequests;
 

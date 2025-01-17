@@ -1,9 +1,10 @@
 package com.metadonate.database.controller;
 
 import com.metadonate.database.dto.OneDonationRequestDTO;
-import com.metadonate.database.model.DonationRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.metadonate.database.dto.CreateDonationRequestDTO;
 import com.metadonate.database.dto.DonationRequestDTO;
 import com.metadonate.database.service.DonationService;
 import java.util.List;
@@ -65,8 +66,7 @@ public class DonationController {
      * @return The created DonationRequestDTO
      */
     @PostMapping("/create")
-    public ResponseEntity<DonationRequestDTO> createDonation(@RequestBody DonationRequestDTO donationRequestDTO) {
-        DonationRequestDTO createdDonationRequest = donationService.createDonation(donationRequestDTO);
-        return ResponseEntity.status(201).body(createdDonationRequest);
+    public ResponseEntity<ResponseStatus> createDonation(@RequestBody CreateDonationRequestDTO DTO) {
+        return donationService.createDonation(DTO);
     }
 }
