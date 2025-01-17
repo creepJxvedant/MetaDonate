@@ -1,26 +1,30 @@
 import { Link, useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
-import Input from '../components/Input';
+import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { useState } from 'react';
-import {handleLogin} from '../secure/handleBackend';
+import { handleLogin } from '../secure/handleBackend';
+import MiniLoader from '../components/ui/MiniLoader';  // Import MiniLoader component
 
 const SignIn = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate(); 
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
 
-   const handleSubmit =async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);  // Start loading
 
-   const data = await handleLogin(email,password);
-   if (data.success) {
-      localStorage.setItem('authToken',data.authToken);
+    const data = await handleLogin(email, password);
+    setLoading(false);  // Stop loading
+
+    if (!data.success) {
+      localStorage.setItem('authToken', data.authToken);
       navigate('/dashboard');
-  //  window.location.reload();
+      window.location.reload();
     } else {
-
       setError('Invalid email or password');
     }
   };
@@ -53,7 +57,11 @@ const SignIn = () => {
           {error && <div className="text-red-500 text-center">{error}</div>}
           <div>
             <Button type="submit" className="w-full">
-              Sign in
+              {loading ? (
+                <MiniLoader />  // Display the MiniLoader when loading
+              ) : (
+                'Sign in'  // Display "Sign in" text when not loading
+              )}
             </Button>
           </div>
         </form>

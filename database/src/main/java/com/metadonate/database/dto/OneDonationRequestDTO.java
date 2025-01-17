@@ -1,8 +1,6 @@
 package com.metadonate.database.dto;
 
 import com.metadonate.database.model.DonationRequest;
-import com.metadonate.database.model.Doners;
-import java.util.List;
 
 public record OneDonationRequestDTO(
         Long id,
@@ -12,8 +10,7 @@ public record OneDonationRequestDTO(
         double amountNeeded,
         double amountCollected,
         String recipientAddress,
-        String message,
-        List<Doners> doners) {
+        String reason) {
 
     public OneDonationRequestDTO(DonationRequest donationRequest) {
         this(
@@ -24,7 +21,6 @@ public record OneDonationRequestDTO(
                 donationRequest.getAmtRequest(),
                 donationRequest.getAmtReceived(),
                 donationRequest.getAddress(),
-                donationRequest.getMessage(),
-                null);
+                donationRequest.getReason());
     }
 }

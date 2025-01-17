@@ -1,40 +1,42 @@
-import { Link, useNavigate } from 'react-router-dom';
+import { Link} from 'react-router-dom';
 import Card from '../components/ui/Card';
-import Input from '../components/Input';
+import Input from '../components/ui/Input';
 import Button from '../components/ui/Button';
 import { useState } from 'react';
-import Auth from '../../Auth.json';
+import { handleRegister } from '../secure/handleBackend';
+import MiniLoader from '../components/ui/MiniLoader'
 
 const SignUp = () => {
-  const [name, setName] = useState('');
+  const [username, setuserName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-  
-    if (!name || !email || !password) {
+    
+    setLoading(true);
+    if (!username || !email || !password) {
       setError('All fields are required');
       return;
     }
-
-    const existingUser = Auth.find(user => user.email === email);
-    if (existingUser) {
-      setError('Email is already registered');
-      return;
-    } 
-     const authToken=Auth.length+1; 
-
-    const newUser = {authToken, name, email, password };
-    Auth.push(newUser); 
-
-    console.log('New user signed up:', newUser);
-
-    navigate('/login/signin'); 
-  };
-
+    const handleSubmit = async (e) => {
+      e.preventDefault();
+    
+      setLoading(true);
+    
+      // Ensure all fields are filled out
+      if (!username || !email || !password) {
+        setError('All fields are required');
+        setLoading(false); // Stop loading if validation fails
+        return;
+      }    
+       await handleRegister(username, email, password);
+      setLoading(false);
+    };
+  }
+    
   return (
     <div className="min-h-screen bg-gray-900 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
       <Card className="max-w-md w-full space-y-8 p-8">
@@ -50,8 +52,8 @@ const SignUp = () => {
             label="Full Name"
             type="text"
             required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            value={username}
+            onChange={(e) => setuserName(e.target.value)}
           />
           {/* Email Input */}
           <Input
@@ -77,8 +79,12 @@ const SignUp = () => {
 
           {/* Submit Button */}
           <div>
-            <Button type="submit" className="w-full">
-              Sign up
+          <Button type="submit" className="w-full">
+              {loading ? (
+                <MiniLoader /> 
+              ) : (
+                'Sign up'  // Display "Sign in" text when not loading
+              )}
             </Button>
           </div>
         </form>
